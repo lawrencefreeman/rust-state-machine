@@ -1,1 +1,0 @@
-/Users/loz/Projects/rust_projects/rust-state-machine/target/debug/rust-state-machine: /Users/loz/Projects/rust_projects/rust-state-machine/src/balances.rs /Users/loz/Projects/rust_projects/rust-state-machine/src/main.rs
