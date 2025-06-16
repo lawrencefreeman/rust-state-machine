@@ -53,13 +53,13 @@ mod tests {
         sys_pal.inc_block_number(); //should now be 1
         //Check the block number is what we expect.
         assert_eq!(sys_pal.block_number(), 1);
-    	//Increment the nonce of `alice`.
-        sys_pal.nonce.insert(String::from("alice"), 0);
-        sys_pal.inc_nonce(&String::from("alice"));
-        //Check the nonce of `alice` is what we expect.
-        assert_eq!(sys_pal.nonce.get(&String::from("alice")), Some(&1u32));
-        //Check the nonce of `bob` is what we expect (0 via the defaulting of unwrap_or())
-        assert_eq!(*sys_pal.nonce.get(&String::from("bob")).unwrap_or(&0), 0);
+    	//Increment the nonce of `Alice`.
+        sys_pal.nonce.insert(String::from("Alice"), 0);
+        sys_pal.inc_nonce(&String::from("Alice"));
+        //Check the nonce of `Alice` is what we expect.
+        assert_eq!(sys_pal.nonce.get(&String::from("Alice")), Some(&1u32));
+        //Check the nonce of `Bob` is what we expect (0 via the defaulting of unwrap_or())
+        assert_eq!(*sys_pal.nonce.get(&String::from("Bob")).unwrap_or(&0), 0);
         
     }
 }
