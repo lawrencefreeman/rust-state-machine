@@ -1,14 +1,20 @@
 use std::collections::BTreeMap;
+use num::traits::{CheckedAdd, CheckedSub, Zero};
 
-type AccountID = String;
-type Balance = u128;
 
-#[derive(Debug)]pub struct Pallet {
+
+#[derive(Debug)]
+pub struct Pallet<AccountID, Balance> {
     balances: BTreeMap<AccountID, Balance>,
 }
-impl Pallet {
-    pub fn new() -> Pallet {
-        Pallet {
+impl<AccountID,Balance> Pallet<AccountID,Balance>
+where
+    AccountID: Ord + Clone, //needed to include clone as per balances.insert method.
+    Balance: Zero + CheckedSub + CheckedAdd + Copy,
+{
+    // changed from explicit Pallet to Self.
+    pub fn new() -> Self {
+        Self {
             balances: BTreeMap::new()
         }
     }
@@ -18,7 +24,7 @@ impl Pallet {
     }
     //getter for the balance by who
     pub fn balance(&self, who: &AccountID) ->  Balance {
-        *self.balances.get(who).unwrap_or(&0)
+        *self.balances.get(who).unwrap_or(&Balance::zero()) //call the Zero traits zero() method to guarantee compat with our generic. (0 will not ocmpile as a literal of i32)
     }
 
     //build the transfer method
@@ -26,7 +32,7 @@ impl Pallet {
             let from_bal = self.balance(&from);
             let to_bal = self.balance(&to);
             //safe math for new "from" bal after amt transf out
-            let new_from_bal = match from_bal.checked_sub(amount) {
+            let new_from_bal = match from_bal.checked_sub(&amount) {
                 Some(nb) => nb,
                 None => {
                         println!("Not enough funds.");
@@ -34,7 +40,8 @@ impl Pallet {
                 }
             };
             //no need to handle overflow on add as no amount of DOT would overflow u128
-            let new_to_bal = to_bal.checked_add(amount).unwrap();
+            //making the amount argument a reference (&) now as we are using generics we dont know it will live on the stack.
+            let new_to_bal = to_bal.checked_add(&amount).unwrap();
             // Apply the balance updates
             self.set_balance(from, new_from_bal);
 
@@ -52,7 +59,7 @@ mod tests {
 	#[test]
 	fn init_balances() {
 		/* TODO: Create a mutable variable `balances`, which is a new instance of `Pallet`. */
-        let mut balances = Pallet::new();
+        let mut balances = Pallet::<String, u128>::new();
 		/* TODO: Assert that the balance of `alice` starts at zero. */
         //these init of Alice and Bob or whoever work becuase of the defaul &0 return from unwrap_or
         //NOTE I've decided NOT to use AccountID::from("name") becuase I dont think it improves readability.
@@ -66,7 +73,7 @@ mod tests {
 	}
     #[test]
     fn transfer_amt() {
-        let mut balances = Pallet::new();
+        let mut balances = Pallet::<String, u128>::new();
         balances.set_balance(&String::from("Alice"), 100);
         //check that alice cannot xfer funds she doesnt have
         assert_eq!(balances.transfer(&String::from("Alice"), &String::from("Bob"), 101), Err("Not enough funds"));
