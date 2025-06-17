@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 use std::ops::AddAssign;
-use num::traits::{CheckedAdd, CheckedSub, Zero, One};
+use num::traits::{Zero, One};
 
 
 //move the types definition out to main for instantiation in runtime
@@ -21,7 +21,7 @@ impl <AccountID, Nonce, BlockNumber>Pallet<AccountID, Nonce, BlockNumber>
 where
     AccountID: Ord + Clone,
     Nonce: Zero + One + AddAssign + Copy,
-    BlockNumber: Zero + One + CheckedSub + CheckedAdd + Copy + AddAssign,
+    BlockNumber: Zero + One + Copy + AddAssign,
 {
 	/// Create a new instance of the System Pallet.
 	pub fn new() -> Self {
