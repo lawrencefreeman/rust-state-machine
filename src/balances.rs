@@ -1,8 +1,10 @@
 use std::collections::BTreeMap;
 
+type AccountID = String;
+type Balance = u128;
 
 #[derive(Debug)]pub struct Pallet {
-    balances: BTreeMap<String, u128>,
+    balances: BTreeMap<AccountID, Balance>,
 }
 impl Pallet {
     pub fn new() -> Pallet {
@@ -11,16 +13,16 @@ impl Pallet {
         }
     }
     //setter function for the balance by who defaulting to 0 is not found
-    pub fn set_balance(&mut self, who: &String, amount: u128) {
+    pub fn set_balance(&mut self, who: &AccountID, amount: Balance) {
         self.balances.insert(who.clone(), amount);
     }
     //getter for the balance by who
-    pub fn balance(&self, who: &String) ->  u128 {
+    pub fn balance(&self, who: &AccountID) ->  Balance {
         *self.balances.get(who).unwrap_or(&0)
     }
 
     //build the transfer method
-    pub fn transfer(&mut self, from: &String, to: &String, amount: u128) -> Result<(), &'static str> {
+    pub fn transfer(&mut self, from: &AccountID, to: &AccountID, amount: Balance) -> Result<(), &'static str> {
             let from_bal = self.balance(&from);
             let to_bal = self.balance(&to);
             //safe math for new "from" bal after amt transf out
@@ -53,6 +55,7 @@ mod tests {
         let mut balances = Pallet::new();
 		/* TODO: Assert that the balance of `alice` starts at zero. */
         //these init of Alice and Bob or whoever work becuase of the defaul &0 return from unwrap_or
+        //NOTE I've decided NOT to use AccountID::from("name") becuase I dont think it improves readability.
         assert_eq!(balances.balance(&String::from("Alice")), 0);
 		/* TODO: Set the balance of `alice` to 100. */
         balances.set_balance(&String::from("Alice"), 100);

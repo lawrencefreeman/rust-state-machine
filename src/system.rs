@@ -1,15 +1,19 @@
 use std::collections::BTreeMap;
 
+
+type Nonce = String;
+type BlockNumber = u32;
+
 /// This is the System Pallet.
 /// It handles low level state needed for your blockchain.
 #[derive(Debug)]
 pub struct Pallet {
 	/// The current block number.
 	/* TODO: Create a field `block_number` that stores a `u32`. */
-    block_number: u32,
+    block_number: BlockNumber,
 	/// A map from an account to their nonce.
 	/* TODO: Create a field `nonce` that is a `BTreeMap` from `String` to `u32`. */
-    nonce: BTreeMap<String, u32>,
+    nonce: BTreeMap<Nonce, BlockNumber>,
 }
 
 impl Pallet {
@@ -23,7 +27,7 @@ impl Pallet {
 	}
 
     //return the currently stored block number. a getter, so okay to have the same name as field
-    pub fn block_number(&self) -> u32 {
+    pub fn block_number(&self) -> BlockNumber {
         self.block_number
     }
 
@@ -33,7 +37,7 @@ impl Pallet {
     }
 
     //increment the number used once (nonce) for the specified user:
-    pub fn inc_nonce(&mut self, who: &String) {
+    pub fn inc_nonce(&mut self, who: &Nonce) {
         //love this sweet baby (entry) - a mutable retrieval of BTreeMap value by key :) , dont need who()
         let counter = self.nonce.entry(who.clone()).or_insert(0);
         //increment the value of the dereferenced counter var (val)
@@ -42,8 +46,8 @@ impl Pallet {
 
     //adding a public nonce_getter so that I can test assertions in the runtime...
     //must be reference to self so not moving the system pallet
-    pub fn get_nonce(&self, who: &String) -> u32 {
-        *self.nonce.get(who).unwrap_or(&0u32)
+    pub fn get_nonce(&self, who: &Nonce) -> BlockNumber {
+        *self.nonce.get(who).unwrap_or(&0)
     }
 
 }
@@ -64,7 +68,7 @@ mod tests {
         sys_pal.nonce.insert(String::from("Alice"), 0);
         sys_pal.inc_nonce(&String::from("Alice"));
         //Check the nonce of `Alice` is what we expect.
-        assert_eq!(sys_pal.nonce.get(&String::from("Alice")), Some(&1u32));
+        assert_eq!(sys_pal.nonce.get(&String::from("Alice")), Some(&1));
         //Check the nonce of `Bob` is what we expect (0 via the defaulting of unwrap_or())
         assert_eq!(*sys_pal.nonce.get(&String::from("Bob")).unwrap_or(&0), 0);
         
