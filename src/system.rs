@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 
 /// This is the System Pallet.
 /// It handles low level state needed for your blockchain.
+#[derive(Debug)]
 pub struct Pallet {
 	/// The current block number.
 	/* TODO: Create a field `block_number` that stores a `u32`. */
@@ -37,6 +38,12 @@ impl Pallet {
         let counter = self.nonce.entry(who.clone()).or_insert(0);
         //increment the value of the dereferenced counter var (val)
         *counter += 1;
+    }
+
+    //adding a public nonce_getter so that I can test assertions in the runtime...
+    //must be reference to self so not moving the system pallet
+    pub fn get_nonce(&self, who: &String) -> u32 {
+        *self.nonce.get(who).unwrap_or(&0u32)
     }
 
 }
