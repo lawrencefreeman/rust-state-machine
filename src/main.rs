@@ -7,11 +7,13 @@ mod system;
 mod types {
     pub type AccountID = String;
     pub type Balance = u128;
+    pub type Nonce = u32;
+    pub type BlockNumber = u32;
 }
 
 #[derive(Debug)]
 pub struct Runtime {
-	system: system::Pallet,
+	system: system::Pallet<types:: AccountID, types::Nonce, types::BlockNumber>,
     balances: balances::Pallet<types::AccountID, types::Balance>,
     
     /* TODO:
