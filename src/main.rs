@@ -116,17 +116,18 @@ impl crate::support::Dispatch for Runtime {
 
 fn main() {
     let mut runtime = Runtime::new();
-    println!("The before state system pallet contents is {:#?}", runtime.system);
-    println!("The before state balances pallet contents is {:#?}", runtime.balances);
+    //println!("The before state system pallet contents is {:#?}", runtime.system);
+    //println!("The before state balances pallet contents is {:#?}", runtime.balances);
     
     let alice = String::from("Alice"); //remove reference
     let bob = String::from("Bob"); //remove reference
     let charlie = String::from("Charlie"); //remove reference
+    let lozza = String::from("Lozza");
 
     runtime.balances.set_balance(&alice, 100);
     
-    println!("The after state system pallet contents is {:#?}", runtime.system);
-    println!("The after state balances pallet contents is {:#?}", runtime.balances);
+    //println!("The after state system pallet contents is {:#?}", runtime.system);
+    //println!("The after state balances pallet contents is {:#?}", runtime.balances);
 
     /*
 		TODO: Replace the logic above with a new `Block`.
@@ -135,25 +136,63 @@ fn main() {
 			  `Extrinsic` and `RuntimeCall`.
 	*/
     let block_1 = types::Block {
-	header: support::Header { block_number: 1 },
-	extrinsics: vec![
-		support::Extrinsic {
-			caller: alice.clone(),
-			call: RuntimeCall::Balances(balances::Call::Transfer{to: bob, amount: 30 }),
-		},
-        support::Extrinsic {
-			caller: alice.clone(),
-			call: RuntimeCall::Balances(balances::Call::Transfer{to: charlie, amount: 20 }),
-		},
-	],
-};
-	/*
-		TODO:
-		Use your `runtime` to call the `execute_block` function with your new block.
-		If the `execute_block` function returns an error, you should panic!
-		We `expect` that all the blocks being executed must be valid.
-	*/
+	    header: support::Header { block_number: 1 },
+	    extrinsics: vec![
+		    support::Extrinsic {
+		    	caller: alice.clone(),
+		    	call: RuntimeCall::Balances(balances::Call::Transfer{to: bob.clone(), amount: 30 }),
+		    },
+            support::Extrinsic {
+		    	caller: alice.clone(),
+		    	call: RuntimeCall::Balances(balances::Call::Transfer{to: charlie.clone(), amount: 20 }),
+		    },
+	    ],
+    };
+    //lozza makes a bold claim. Lets hope it doesnt get revoked!
+    let block_2 = types::Block {
+	    header: support::Header { block_number: 2 },
+	    extrinsics: vec![
+		    support::Extrinsic {
+		    	caller: alice.clone(),
+		    	call: RuntimeCall::Balances(balances::Call::Transfer{to: lozza.clone(), amount: 40 }),
+		    },
+            support::Extrinsic {
+		    	caller: charlie.clone(),
+		    	call: RuntimeCall::Balances(balances::Call::Transfer{to: lozza.clone(), amount: 10 }),
+		    },
+            support::Extrinsic {
+		    	caller: lozza.clone(),
+		    	call: RuntimeCall::ProofOfExistence(proof_of_existence::Call::CreateClaim { claim: ("Lozza is going (wants!) to PBA Bali 2025 ;) !!!") }),
+		    },
+	    ],
+    };
+    //charlie please no!
+    let block_3 = types::Block {
+	    header: support::Header { block_number: 3 },
+	    extrinsics: vec![
+            support::Extrinsic {
+		    	caller: charlie.clone(),
+		    	call: RuntimeCall::ProofOfExistence(proof_of_existence::Call::RevokeClaim { claim: ("Lozza is going (wants!) to PBA Bali 2025 ;) !!!") }),
+		    },
+	    ],
+    };
+    //alices runs out of DOT
+    let block_4 = types::Block {
+	    header: support::Header { block_number: 4 },
+	    extrinsics: vec![
+            support::Extrinsic {
+		    	caller: alice.clone(),
+		    	call: RuntimeCall::Balances(balances::Call::Transfer { to: charlie.clone(), amount: 20 } ),
+		    },
+	    ],
+    };
+
     runtime.execute_block(block_1).expect("invalid block");
-	// Simply print the debug format of our runtime state.
+    println!("{:#?}", runtime);
+    runtime.execute_block(block_2).expect("invalid block");
+	println!("{:#?}", runtime);
+    runtime.execute_block(block_3).expect("invalid block");
+	println!("{:#?}", runtime);
+    runtime.execute_block(block_4).expect("invalid block");
 	println!("{:#?}", runtime);
 }
