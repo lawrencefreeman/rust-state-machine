@@ -11,15 +11,17 @@ mod types {
     pub type BlockNumber = u32;
 }
 
+
 #[derive(Debug)]
 pub struct Runtime {
-	system: system::Pallet<types:: AccountID, types::Nonce, types::BlockNumber>,
+	system: system::Pallet<Self>,
     balances: balances::Pallet<types::AccountID, types::Balance>,
     
-    /* TODO:
-		- Create a field `system` which is of type `system::Pallet`.
-		- Create a field `balances` which is of type `balances::Pallet`.
-	*/
+}
+impl system::Config for Runtime {
+	type AccountID = types::AccountID;
+	type BlockNumber = types::BlockNumber;
+	type Nonce = types::Nonce;
 }
 
 impl Runtime {
@@ -40,13 +42,16 @@ fn main() {
     println!("The before state balances pallet contents is {:#?}", runtime.balances);
     
     let alice = &String::from("Alice");
+    let bob = &String::from("Bob");
+    let charlie = &String::from("Charlie");
+    
     runtime.balances.set_balance(alice, 100);
     runtime.system.inc_block_number();
     runtime.system.inc_nonce(alice);
-    let bob = &String::from("Bob");
+    
     let _res = runtime.balances.transfer(alice, bob, 30).map_err(|e| eprintln!("{}", e));
     runtime.system.inc_nonce(alice);
-    let charlie = &String::from("Charlie");
+    
     runtime.balances.transfer(alice, charlie, 20);
     println!("The after state system pallet contents is {:#?}", runtime.system);
     println!("The after state balances pallet contents is {:#?}", runtime.balances);
