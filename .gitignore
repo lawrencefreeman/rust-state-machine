@@ -1,6 +1,11 @@
 # Compiled output
 /target/
 
+# Temporarily ignore - these are macros from PBA
+/src/call/
+/src/runtime/
+/lib.rs
+
 # Build artifacts
 **/*.rlib
 
