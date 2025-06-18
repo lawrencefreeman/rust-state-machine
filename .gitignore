@@ -4,7 +4,7 @@
 # Temporarily ignore - these are macros from PBA
 /src/call/
 /src/runtime/
-/lib.rs
+/src/lib.rs
 
 # Build artifacts
 **/*.rlib
