@@ -1,16 +1,19 @@
 use std::collections::BTreeMap;
 use num::traits::{CheckedAdd, CheckedSub, Zero};
 
-
+pub trait Config {
+    type AccountID: Ord + Clone; //needed to include clone as per balances.insert method.
+    type Balance: Zero + CheckedSub + CheckedAdd + Copy;
+}
 
 #[derive(Debug)]
-pub struct Pallet<AccountID, Balance> {
-    balances: BTreeMap<AccountID, Balance>,
+pub struct Pallet<T:Config> {
+    balances: BTreeMap<T::AccountID, T::Balance>,
 }
-impl<AccountID,Balance> Pallet<AccountID,Balance>
+impl<T:Config> Pallet<T>
 where
-    AccountID: Ord + Clone, //needed to include clone as per balances.insert method.
-    Balance: Zero + CheckedSub + CheckedAdd + Copy,
+    T::AccountID: Ord + Clone, //needed to include clone as per balances.insert method.
+    T::Balance: Zero + CheckedSub + CheckedAdd + Copy,
 {
     // changed from explicit Pallet to Self.
     pub fn new() -> Self {
@@ -19,16 +22,16 @@ where
         }
     }
     //setter function for the balance by who defaulting to 0 is not found
-    pub fn set_balance(&mut self, who: &AccountID, amount: Balance) {
+    pub fn set_balance(&mut self, who: &T::AccountID, amount: T::Balance) {
         self.balances.insert(who.clone(), amount);
     }
     //getter for the balance by who
-    pub fn balance(&self, who: &AccountID) ->  Balance {
-        *self.balances.get(who).unwrap_or(&Balance::zero()) //call the Zero traits zero() method to guarantee compat with our generic. (0 will not ocmpile as a literal of i32)
+    pub fn balance(&self, who: &T::AccountID) ->  T::Balance {
+        *self.balances.get(who).unwrap_or(&T::Balance::zero()) //call the Zero traits zero() method to guarantee compat with our generic. (0 will not ocmpile as a literal of i32)
     }
 
     //build the transfer method
-    pub fn transfer(&mut self, from: &AccountID, to: &AccountID, amount: Balance) -> Result<(), &'static str> {
+    pub fn transfer(&mut self, from: &T::AccountID, to: &T::AccountID, amount: T::Balance) -> Result<(), &'static str> {
             let from_bal = self.balance(&from);
             let to_bal = self.balance(&to);
             //safe math for new "from" bal after amt transf out
@@ -55,11 +58,16 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    struct TestConfig;
+    impl Config for TestConfig {
+        type AccountID = String;
+        type Balance = u128;
+    }
 
 	#[test]
 	fn init_balances() {
 		/* TODO: Create a mutable variable `balances`, which is a new instance of `Pallet`. */
-        let mut balances = Pallet::<String, u128>::new();
+        let mut balances = Pallet::<TestConfig>::new();
 		/* TODO: Assert that the balance of `alice` starts at zero. */
         //these init of Alice and Bob or whoever work becuase of the defaul &0 return from unwrap_or
         //NOTE I've decided NOT to use AccountID::from("name") becuase I dont think it improves readability.

@@ -15,13 +15,18 @@ mod types {
 #[derive(Debug)]
 pub struct Runtime {
 	system: system::Pallet<Self>,
-    balances: balances::Pallet<types::AccountID, types::Balance>,
+    balances: balances::Pallet<Self>,
     
 }
 impl system::Config for Runtime {
 	type AccountID = types::AccountID;
 	type BlockNumber = types::BlockNumber;
 	type Nonce = types::Nonce;
+}
+
+impl balances::Config for Runtime {
+    type AccountID = types::AccountID;
+    type Balance = types::Balance;
 }
 
 impl Runtime {
@@ -44,7 +49,7 @@ fn main() {
     let alice = &String::from("Alice");
     let bob = &String::from("Bob");
     let charlie = &String::from("Charlie");
-    
+
     runtime.balances.set_balance(alice, 100);
     runtime.system.inc_block_number();
     runtime.system.inc_nonce(alice);
@@ -52,7 +57,7 @@ fn main() {
     let _res = runtime.balances.transfer(alice, bob, 30).map_err(|e| eprintln!("{}", e));
     runtime.system.inc_nonce(alice);
     
-    runtime.balances.transfer(alice, charlie, 20);
+    let _ = runtime.balances.transfer(alice, charlie, 20);
     println!("The after state system pallet contents is {:#?}", runtime.system);
     println!("The after state balances pallet contents is {:#?}", runtime.balances);
 }
