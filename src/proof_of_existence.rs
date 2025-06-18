@@ -1,5 +1,6 @@
 use core::fmt::Debug;
 use std::collections::BTreeMap;
+use crate::support::DispatchResult;
 
 pub trait Config: crate::system::Config {
 	/// The type which represents the content that can be claimed using this pallet.
@@ -25,5 +26,68 @@ impl<T: Config> Pallet<T> {
         Self {
             claims: BTreeMap::new(),
         }
+	}
+
+    /// Get the owner (if any) of a claim.
+	pub fn get_claim(&self, claim: &T::Content) -> Option<&T::AccountID> {
+		/* TODO: `get` the `claim` */
+		match self.claims.get(claim) {
+            Some(account) => Some(account),
+            None => None,
+        }
+	}
+
+	/// Create a new claim on behalf of the `caller`.
+	/// This function will return an error if someone already has claimed that content.
+	pub fn create_claim(&mut self, caller: T::AccountID, claim: T::Content) -> DispatchResult {
+		/* TODO: Check that a `claim` does not already exist. If so, return an error. */
+            if self.claims.contains_key(&claim) {
+                return Err("Claim already exists");
+            } else {
+                // If the claim does not exist, we can proceed to insert it.
+                self.claims.insert(claim, caller);
+            }
+		Ok(())
+	}
+
+	/// Revoke an existing claim on some content.
+	/// This function should only succeed if the caller is the owner of an existing claim.
+	/// It will return an error if the claim does not exist, or if the caller is not the owner.
+	pub fn revoke_claim(&mut self, caller: T::AccountID, claim: T::Content) -> DispatchResult {
+		/* TODO: Get the owner of the `claim` to be revoked. */
+        let owner_verif = self.get_claim(&claim).ok_or("Claim doesnt exist")?;
+        //TODO: Check that the `owner` matches the `caller`.
+        if caller != *owner_verif {
+            return Err("Caller is not the verified owner");
+        }
+        //TODO: If all checks pass, then `remove` the `claim`.
+        self.claims.remove(&claim);
+		Ok(())
+	}
+}
+
+#[cfg(test)]
+mod test {
+	struct TestConfig;
+
+	impl super::Config for TestConfig {
+		type Content = &'static str;
+	}
+
+	impl crate::system::Config for TestConfig {
+		type AccountID = &'static str;
+		type BlockNumber = u32;
+		type Nonce = u32;
+	}
+
+	#[test]
+	fn basic_proof_of_existence() {
+		/*
+			TODO:
+			Create an end to end test verifying the basic functionality of this pallet.
+				- Check the initial state is as you expect.
+				- Check that all functions work successfully.
+				- Check that all error conditions error as expected.
+		*/
 	}
 }
