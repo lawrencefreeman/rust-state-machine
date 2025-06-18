@@ -78,7 +78,7 @@ mod tests {
 	}
     #[test]
     fn transfer_amt() {
-        let mut balances = Pallet::<String, u128>::new();
+        let mut balances = Pallet::<TestConfig>::new();
         balances.set_balance(&String::from("Alice"), 100);
         //check that alice cannot xfer funds she doesnt have
         assert_eq!(balances.transfer(&String::from("Alice"), &String::from("Bob"), 101), Err("Not enough funds"));
