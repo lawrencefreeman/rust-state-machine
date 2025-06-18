@@ -25,7 +25,6 @@ impl system::Config for Runtime {
 }
 
 impl balances::Config for Runtime {
-    type AccountID = types::AccountID;
     type Balance = types::Balance;
 }
 
