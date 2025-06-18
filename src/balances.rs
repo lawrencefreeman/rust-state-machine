@@ -11,9 +11,6 @@ pub struct Pallet<T:Config> {
     balances: BTreeMap<T::AccountID, T::Balance>,
 }
 impl<T:Config> Pallet<T>
-where
-    T::AccountID: Ord + Clone, //needed to include clone as per balances.insert method.
-    T::Balance: Zero + CheckedSub + CheckedAdd + Copy,
 {
     // changed from explicit Pallet to Self.
     pub fn new() -> Self {
