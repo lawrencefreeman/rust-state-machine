@@ -1,10 +1,8 @@
-use crate::support::Dispatch;
-
 mod balances;
 mod system;
 mod support;
 
-
+use crate::support::Dispatch;
 // This is our main Runtime.
 // It accumulates all of the different pallets we want to use.
 
@@ -26,7 +24,7 @@ mod types {
 // These are all the calls which are exposed to the world.
 // Note that it is just an accumulation of the calls exposed by each module.
 pub enum RuntimeCall {
-	// TODO: Not implemented yet.
+	BalancesTransfer {to: types::AccountID, amount: types::Balance},
 }
 
 #[derive(Debug)]
@@ -92,9 +90,15 @@ impl crate::support::Dispatch for Runtime {
 		caller: Self::Caller,
 		runtime_call: Self::Call,
 	) -> support::DispatchResult {
-		unimplemented!();
-	}
+        match runtime_call {
+            RuntimeCall::BalancesTransfer { to, amount } => {
+                self.balances.transfer(&caller, &to, amount)?;
+            }
+        }
+        Ok(())
+    }
 }
+
 
 fn main() {
     let mut runtime = Runtime::new();
