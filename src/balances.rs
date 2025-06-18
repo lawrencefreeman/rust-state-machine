@@ -27,7 +27,7 @@ impl<T:Config> Pallet<T>
     }
 
     //build the transfer method
-    pub fn transfer(&mut self, from: &T::AccountID, to: &T::AccountID, amount: T::Balance) -> Result<(), &'static str> {
+    pub fn transfer(&mut self, from: &T::AccountID, to: &T::AccountID, amount: T::Balance) -> crate::support::DispatchResult {
             let from_bal = self.balance(&from);
             let to_bal = self.balance(&to);
             //safe math for new "from" bal after amt transf out
