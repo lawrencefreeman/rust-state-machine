@@ -7,8 +7,6 @@ use crate::support::Dispatch;
 // It accumulates all of the different pallets we want to use.
 
 mod types {
-    use std::collections::BTreeMap;
-
     pub type AccountID = String;
     pub type Balance = u128;
     pub type Nonce = u32;
@@ -24,7 +22,9 @@ mod types {
 // These are all the calls which are exposed to the world.
 // Note that it is just an accumulation of the calls exposed by each module.
 pub enum RuntimeCall {
-	BalancesTransfer {to: types::AccountID, amount: types::Balance},
+    /* TODO: Turn this into a nested enum where variant `Balances` contains a `balances::Call`. */
+	//BalancesTransfer {to: types::AccountID, amount: types::Balance},
+    Balances(balances::Call<Runtime>),
 }
 
 #[derive(Debug)]
@@ -91,8 +91,10 @@ impl crate::support::Dispatch for Runtime {
 		runtime_call: Self::Call,
 	) -> support::DispatchResult {
         match runtime_call {
-            RuntimeCall::BalancesTransfer { to, amount } => {
-                self.balances.transfer(&caller, &to, amount)?;
+            //RuntimeCall::BalancesTransfer { to, amount } => {
+            //    self.balances.transfer(&caller, &to, amount)?;
+            RuntimeCall::Balances(call) => {
+                self.balances.dispatch(caller, call)?;
             }
         }
         Ok(())
@@ -125,11 +127,11 @@ fn main() {
 	extrinsics: vec![
 		support::Extrinsic {
 			caller: alice.clone(),
-			call: RuntimeCall::BalancesTransfer { to: bob, amount: 30 },
+			call: RuntimeCall::Balances(balances::Call::Transfer{to: bob, amount: 30 }),
 		},
         support::Extrinsic {
 			caller: alice.clone(),
-			call: RuntimeCall::BalancesTransfer { to: charlie, amount: 20 },
+			call: RuntimeCall::Balances(balances::Call::Transfer{to: charlie, amount: 20 }),
 		},
 	],
 };
