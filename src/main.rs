@@ -6,12 +6,25 @@ mod support;
 // It accumulates all of the different pallets we want to use.
 
 mod types {
+    use std::collections::BTreeMap;
+
     pub type AccountID = String;
     pub type Balance = u128;
     pub type Nonce = u32;
     pub type BlockNumber = u32;
+    //TODO: Define a concrete `Extrinsic` type using `AccountId` and `RuntimeCall`.
+    pub type Extrinsic = crate::support::Extrinsic<AccountID, crate::RuntimeCall>;
+    //TODO: Define a concrete `Header` type using `BlockNumber`.
+    pub type Header = crate::support::Header<BlockNumber>;
+    //TODO: Define a concrete `Block` type using `Header` and `Extrinsic`.
+    pub type Block = crate::support::Block<Header, Extrinsic>;
 }
 
+// These are all the calls which are exposed to the world.
+// Note that it is just an accumulation of the calls exposed by each module.
+pub enum RuntimeCall {
+	// TODO: Not implemented yet.
+}
 
 #[derive(Debug)]
 pub struct Runtime {
