@@ -18,20 +18,25 @@ mod types {
     pub type Header = crate::support::Header<BlockNumber>;
     //TODO: Define a concrete `Block` type using `Header` and `Extrinsic`.
     pub type Block = crate::support::Block<Header, Extrinsic>;
+    /* TODO: Add the concrete `Content` type for your runtime. */
+    pub type Content = &'static str;
 }
 
 // These are all the calls which are exposed to the world.
 // Note that it is just an accumulation of the calls exposed by each module.
 pub enum RuntimeCall {
     /* TODO: Turn this into a nested enum where variant `Balances` contains a `balances::Call`. */
-	//BalancesTransfer {to: types::AccountID, amount: types::Balance},
+	//BalancesTransfer {to: types::AccountID, amount: types::Balance}, /* refactored out */
     Balances(balances::Call<Runtime>),
+    /* TODO: Add a `ProofOfExistence` variant to access `proof_of_existence::Call`. */
+    ProofOfExistence(proof_of_existence::Call<Runtime>),
 }
 
 #[derive(Debug)]
 pub struct Runtime {
 	system: system::Pallet<Self>,
     balances: balances::Pallet<Self>,
+    proof_of_existence: proof_of_existence::Pallet<Self>,
     
 }
 impl system::Config for Runtime {
@@ -44,6 +49,10 @@ impl balances::Config for Runtime {
     type Balance = types::Balance;
 }
 
+impl proof_of_existence::Config for Runtime {
+    type Content = types::Content;
+}
+
 impl Runtime {
 	// Create a new instance of the main Runtime, by creating a new instance of each pallet.
 	fn new() -> Self {
@@ -51,6 +60,7 @@ impl Runtime {
 		Self {
             system: system::Pallet::new(),
             balances: balances::Pallet::new(),
+            proof_of_existence: proof_of_existence::Pallet::new(),
         }
 	}
 
@@ -92,10 +102,11 @@ impl crate::support::Dispatch for Runtime {
 		runtime_call: Self::Call,
 	) -> support::DispatchResult {
         match runtime_call {
-            //RuntimeCall::BalancesTransfer { to, amount } => {
-            //    self.balances.transfer(&caller, &to, amount)?;
             RuntimeCall::Balances(call) => {
                 self.balances.dispatch(caller, call)?;
+            },
+            RuntimeCall::ProofOfExistence(call) => {
+                self.proof_of_existence.dispatch(caller, call)?;
             }
         }
         Ok(())
